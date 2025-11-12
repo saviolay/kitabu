@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="sw">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Nunua Kitabu — EFL50</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0f1724;--card:#0b1220;--accent:#06b6d4;--muted:#9aa4b2;--white:#ecf0f6}
+  *{box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+  body{margin:0;background:linear-gradient(180deg,#071028 0%, #071b2f 100%);color:var(--white);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .wrap{width:100%;max-width:980px;display:grid;grid-template-columns:420px 1fr;gap:28px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));border-radius:14px;padding:20px;box-shadow:0 6px 24px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+  .cover{height:560px;border-radius:10px;background-size:cover;background-position:center}
+  .meta h1{margin:0;font-size:22px}
+  .meta p{color:var(--muted);margin:8px 0 18px}
+  .price{font-size:28px;font-weight:700;color:var(--accent);margin-bottom:14px}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .btn{flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.03);cursor:pointer;text-align:center}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),#3b82f6);color:#012; font-weight:700}
+  .small{font-size:13px;color:var(--muted)}
+  .instructions{background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;margin-top:10px;color:var(--muted)}
+  label{display:block;margin-top:12px;font-size:13px;color:var(--muted)}
+  input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--white);margin-top:6px}
+  .pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .pay-option{padding:12px;border-radius:10px;background:rgba(255,255,255,0.02);cursor:pointer;border:1px solid rgba(255,255,255,0.03);text-align:center}
+  .note{font-size:13px;color:var(--muted);margin-top:12px}
+  .success{background:linear-gradient(90deg,#16a34a,#4ade80);color:#012;padding:12px;border-radius:8px;margin-top:12px;display:none}
+  footer{margin-top:16px;color:var(--muted);font-size:13px}
+  @media (max-width:880px){.wrap{grid-template-columns:1fr;}.cover{height:360px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="cover" id="cover" style="background-image:url('cover.jpeg');"></div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <img src="cover.jpeg" style="width:64px;height:64px;border-radius:8px">
+      <div>
+        <div class="small">MWL DISMAS KAPINGU</div>
+        <div style="font-weight:700">MWL DISMAS KAPINGU</div>
+        <div class="small" style="margin-top:6px">EFL50 — Toleo la elektroniki (PDF)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card meta">
+    <h1>SAFARI YANGU NA MUNGU — Tenga sifa fupi hapa</h1>
+    <p class="small">Muhtasari mfupi wa kitabu (1-2 sentensi). Can be changed easily.</p>
+    <div class="price">EFL50</div>
+
+    <div class="btn-row">
+      <div class="btn primary" id="buyNow">Lipa Sasa</div>
+      <div class="btn" id="preview">Angalia Sampuli</div>
+    </div>
+
+    <div id="paySection" style="display:none">
+      <div class="small">Chagua njia ya kulipa (Mfano kwa watumiaji Tanzania):</div>
+      <div class="pay-grid">
+        <div class="pay-option" data-method="mpesa">M-Pesa</div>
+        <div class="pay-option" data-method="tigopesa">TigoPesa</div>
+        <div class="pay-option" data-method="airtel">Airtel Money</div>
+        <div class="pay-option" data-method="other">SimuBank / Bank</div>
+      </div>
+
+      <div id="instructions" class="instructions" style="display:none"></div>
+
+      <form id="txForm" style="margin-top:12px">
+        <label>Jina lako (kwa sababu ya risiti / download)</label>
+        <input type="text" id="buyerName" placeholder="Jina lako kamili" required>
+
+        <label>Namba ya simu (iliyotumika kulipia)</label>
+        <input type="text" id="phone" placeholder="07XXXXXXXX" required>
+
+        <label>Kielezi / Transaction Ref (mfano: ABC12345)</label>
+        <input type="text" id="txRef" placeholder="Andika reference ya malipo hapa" required>
+
+        <label class="small">Tuma uthibitisho wa malipo hapa (kwa auto-demo)</label>
+        <textarea id="note" placeholder="Optional: ujumbe, email, n.k." rows="2"></textarea>
+
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <div class="btn primary" id="submitTx">Tuma & Pata Kitabu</div>
+          <div class="btn" id="manual">Nimeshapata Malipo, Tuma Kwako</div>
+        </div>
+      </form>
+
+      <div class="success" id="successBox">
+        <strong>Shukrani! </strong>
+        <div id="successMsg">Kiungo kimejitokeza hapa chini.</div>
+        <div style="margin-top:8px"><a id="downloadLink" href="#" download>Pakua Kitabu (PDF)</a></div>
+      </div>
+
+      <div class="note">
+        Kwa msingi: mfumo huu unakuruhusu **kuingiza transaction ref**. Ili kufanya utoaji wa kiotomatiki bila hitilafu, ni bora kuunganisha API ya kitu kama <strong>payment gateway</strong> (wa kutuma webhook). Ikiwa huna gateway, unaweza kutumia njia ya mkono — tuma ref na nitakuthibitisha.
+      </div>
+
+      <footer>Unaweza ku-share link hii kwa WhatsApp au kuweka kwenye bio yako.</footer>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const buyNow = document.getElementById('buyNow');
+  const paySection = document.getElementById('paySection');
+  const payOptions = document.querySelectorAll('.pay-option');
+  const instructions = document.getElementById('instructions');
+  const submitTx = document.getElementById('submitTx');
+  const successBox = document.getElementById('successBox');
+  const downloadLink = document.getElementById('downloadLink');
+
+  const PRICE = "EFL50";
+  const DEMO_SECRET_REF = "DEMO-PAID-123"; // kwa test/demo tu
+
+  buyNow.addEventListener('click', () => {
+    paySection.style.display = 'block';
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  });
+
+  payOptions.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      const m = opt.dataset.method;
+      showInstructions(m);
+      document.querySelectorAll('.pay-option').forEach(x=>x.style.borderColor='rgba(255,255,255,0.03)');
+      opt.style.borderColor = '#06b6d4';
+    });
+  });
+
+  function showInstructions(method){
+    let text = "";
+    if(method === 'mpesa'){
+      text = "<strong>Mpesa (USSD / App)</strong><br>1. Open *150*00# or M-Pesa app.<br>2. Chagua 'Send Money' ama 'Paybill'. <br>3. Tuma EFL50 to <strong>YOUR_PAYBILL_OR_NUMBER</strong>.<br>4. Kamilisha na uandike transaction ref utakaopokea (mfano ABC12345).";
+    } else if(method === 'tigopesa'){
+      text = "<strong>TigoPesa</strong><br>1. Open *150*01# or Tigo Pesa app.<br>2. Chagua 'Send Money' or 'Pay' and send EFL50 to <strong>YOUR_TIGOPESA_NUMBER</strong>.<br>3. Nakili transaction ref.";
+    } else if(method === 'airtel'){
+      text = "<strong>Airtel Money</strong><br>1. Open *150*60# or Airtel Money app.<br>2. Send EFL50 to <strong>YOUR_AIRTEL_NUMBER</strong> and save ref.";
+    } else {
+      text = "<strong>SimuBank / Bank</strong><br>Tuma EFL50 using your preferred mobile banking/agent and copy the reference.";
+    }
+    instructions.style.display = 'block';
+    instructions.innerHTML = text + "<div class='small' style='margin-top:8px'>Baada ya kulipa, tafadhali jaza fomu hapa chini na ingiza transaction ref.</div>";
+  }
+
+  submitTx.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const name = document.getElementById('buyerName').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const txRef = document.getElementById('txRef').value.trim();
+    if(!name || !phone || !txRef){
+      alert('Tafadhali jaza jina, namba ya simu, na transaction ref.');
+      return;
+    }
+
+    // Demo automatic: if txRef matches demo secret, allow immediate download
+    if(txRef === DEMO_SECRET_REF){
+      successBox.style.display = 'block';
+      document.getElementById('successMsg').innerText = "Umefanikiwa (demo). Download ikoje hapa chini.";
+      // link to your actual PDF file (change to your file path)
+      downloadLink.href = "kitabu.pdf";
+      return;
+    }
+
+    // Otherwise, simulate "submit for manual verification"
+    successBox.style.display = 'block';
+    document.getElementById('successMsg').innerHTML = "Umewasilisha maelezo ya malipo. Tutakusaidia ndani ya muda mfupi (manual verification).";
+    downloadLink.href = "#";
+    downloadLink.innerText = "Utapewa link baada ya kuthibitisha";
+    
+    // Optionally send to server endpoint (if you host a backend)
+    // fetch('/submit-payment.php', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name,phone,txRef})});
+  });
+
+  // Manual button - copy message to clipboard to send to seller
+  document.getElementById('manual').addEventListener('click', (e)=>{
+    e.preventDefault();
+    const name = document.getElementById('buyerName').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const txRef = document.getElementById('txRef').value.trim();
+    const note = document.getElementById('note').value.trim();
+    const msg = `Nimekamilisha malipo ya EFL50. Jina: ${name}. Simu: ${phone}. Ref: ${txRef}. ${note}`;
+    navigator.clipboard.writeText(msg).then(()=> alert('Ujumbe ume-copy. Now send it to seller via WhatsApp.'));
+  });
+</script>
+</body>
+</html>
